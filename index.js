@@ -2,11 +2,17 @@ const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
 // img code possibly?
+const SkyImg = new Image();
+SkyImg.src = 'Sky.png'; 
+const hillsImg = new Image();
+hillsImg.src = 'Hills.png'; 
 const platformImg = new Image();
 platformImg.src = 'Platform.png'; 
 
-canvas.width = window.innerWidth
-canvas.height = window.innerHeight
+
+
+canvas.width = 1024
+canvas.height = 576
 
 const gravity = 0.5
 
@@ -56,17 +62,51 @@ class Platform {
         }
 
         this.width = 200
-        this.height = 20
+        this.height = 100
     }
 
     draw() {
-            c.fillStyle = 'blue'
-            c.fillRect(this.position.x, this.position.y, this.width, this.height)
+            c.drawImage(
+            platformImg,
+            this.position.x,
+            this.position.y,
+            this.width,
+            this.height
+            )
+        }
+}
+
+class Background {
+    constructor({ x, y, image }) {
+        this.position = {
+            x,
+            y
+        }
+
+        this.image = image
+        this.width = 3000
+        this.height = 580
+    }
+
+    draw() {
+            c.drawImage(
+            this.image,
+            this.position.x,
+            this.position.y,
+            this.width,
+            this.height
+            )
         }
 }
 
 const player = new Player()
-const platforms = [new Platform({x: 200, y: 300}), new Platform({x: 500, y: 500})]
+const platforms = [
+    new Platform({x: 0, y: 480}), 
+    new Platform({x: 400, y: 350}),
+    new Platform({x: 700, y: 200})]
+const sky = new Background({x: 0, y: 0, image: SkyImg})
+const hills = new Background({x: 0, y: 0, image: hillsImg})
+
 
 const keys = {
     right: {
@@ -81,11 +121,16 @@ let scrollOffset = 0
 
 function animate() {
     requestAnimationFrame(animate)
-    c.clearRect(0, 0, canvas.width, canvas.height)
-    player.update()
+    c.fillStyle = '#caf4fa'
+    c.fillRect(0, 0, canvas.width, canvas.height)
+
+    sky.draw()
+    hills.draw()
+    
     platforms.forEach(platform => {
         platform.draw()
     })
+    player.update()
 
     if (keys.right.pressed && player.position.x < 400) {
         player.velocity.x = 5
@@ -101,25 +146,41 @@ function animate() {
             platforms.forEach(platform => {
                 platform.position.x -= 5
             })
+
+            sky.position.x -= 2
+            hills.position.x -= 3
+
         } else if (keys.left.pressed) {
             scrollOffset -= 5
             platforms.forEach(platform => {
                 platform.position.x += 5
             })
+
+            sky.position.x += 2
+            hills.position.x += 3
         }
     }
 
     
     platforms.forEach(platform => {
-        // Platform collision detection
-        if (
-            player.position.y + player.height <= platform.position.y &&
-            player.position.y + player.height + player.velocity.y >= platform.position.y &&
-            player.position.x + player.width >= platform.position.x &&
-            player.position.x <= platform.position.x + platform.width
-        ) {
-            player.velocity.y = 0
-        }
+
+        // Collision detection
+        const groundHeight = 65
+        const platformCollisionY = platform.position.y + platform.height - groundHeight
+
+    if (
+        player.velocity.y > 0 &&
+
+        player.position.y + player.height <= platformCollisionY &&
+        player.position.y + player.height + player.velocity.y >= platformCollisionY &&
+
+        player.position.x + player.width >= platform.position.x &&
+        player.position.x <= platform.position.x + platform.width
+    ) {
+        player.velocity.y = 0
+
+        player.position.y = platformCollisionY - player.height
+    }
 
         // Win scenario
         if (scrollOffset > 2000) {
@@ -132,7 +193,6 @@ animate()
 
 
 // Event Listeners
-
 window.addEventListener('keydown', ( { keyCode }) => {
     switch (keyCode) { 
         case 65:
@@ -152,7 +212,7 @@ window.addEventListener('keydown', ( { keyCode }) => {
         case 87:
             console.log('up')
             if (event.repeat) {return}
-            player.velocity.y -= 20 
+            player.velocity.y -= 15 
             break
     }
 })
