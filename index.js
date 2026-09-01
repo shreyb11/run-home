@@ -1,13 +1,18 @@
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
-// img code possibly?
+// Image import
 const SkyImg = new Image();
 SkyImg.src = 'Sky.png'; 
 const hillsImg = new Image();
 hillsImg.src = 'Hills.png'; 
 const platformImg = new Image();
 platformImg.src = 'Platform.png'; 
+
+const GuyRightImg = new Image();
+GuyRightImg.src = 'GuyRight.png'; 
+const GuyLeftImg = new Image();
+GuyLeftImg.src = 'GuyLeft.png'; 
 
 
 
@@ -19,6 +24,7 @@ const gravity = 0.5
 // Player class construction
 class Player {
     constructor() {
+        this.speed = 7
         this.position = {
             x: 100,
             y: 100
@@ -28,13 +34,17 @@ class Player {
             y: 0
         }
 
-        this.width = 30
-        this.height = 30
+        this.width = 50
+        this.height = 50
     }
 
     draw() {
-        c.fillStyle = 'red'
-        c.fillRect(this.position.x, this.position.y, this.width, this.height)
+        if (keys.left.pressed) {
+            c.drawImage(GuyLeftImg, this.position.x, this.position.y, this.width, this.height)
+        } else {
+            c.drawImage(GuyRightImg, this.position.x, this.position.y, this.width, this.height)
+        }
+        
     }
 
     update() {
@@ -100,15 +110,13 @@ class Background {
 }
 
 let player = new Player()
-let platforms = [
-    new Platform({x: 0, y: 480}), 
-    new Platform({x: 400, y: 350}),
-    new Platform({x: 700, y: 200})]
+let platforms = []
 let sky = new Background({x: 0, y: 0, image: SkyImg})
 let hills = new Background({x: 0, y: 0, image: hillsImg})
 
 let scrollOffset = 0
 
+// Initialization
 function init() {
     player = new Player()
     platforms = [
@@ -144,31 +152,32 @@ function animate() {
     player.update()
 
     if (keys.right.pressed && player.position.x < 400) {
-        player.velocity.x = 5
+        player.velocity.x = player.speed
     }
-    else if (keys.left.pressed && player.position.x > 100) {
-        player.velocity.x = -5
+    else if ((keys.left.pressed && player.position.x > 100) || 
+             (keys.left.pressed && scrollOffset == 0 && player.position.x > 0)) {
+        player.velocity.x = -player.speed
     } else {
         player.velocity.x = 0
 
         // scroll effect
         if (keys.right.pressed) {
-            scrollOffset += 5
+            scrollOffset += player.speed
             platforms.forEach(platform => {
-                platform.position.x -= 5
+                platform.position.x -= player.speed
             })
 
-            sky.position.x -= 2
-            hills.position.x -= 3
+            sky.position.x -= player.speed * 0.33
+            hills.position.x -= player.speed * 0.66
 
-        } else if (keys.left.pressed) {
-            scrollOffset -= 5
+        } else if (keys.left.pressed && scrollOffset > 0) {
+            scrollOffset -= player.speed
             platforms.forEach(platform => {
-                platform.position.x += 5
+                platform.position.x += player.speed
             })
 
-            sky.position.x += 2
-            hills.position.x += 3
+            sky.position.x += player.speed * 0.33
+            hills.position.x += player.speed * 0.66
         }
     }
 
@@ -205,6 +214,7 @@ function animate() {
     })
 }
 
+init()
 animate()
 
 
