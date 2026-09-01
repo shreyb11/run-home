@@ -44,7 +44,7 @@ class Player {
 
         if (this.position.y + this.height + this.velocity.y <= canvas.height)
             this.velocity.y += gravity
-        else this.velocity.y = 0
+        // else this.velocity.y = 0
 
         if (this.position.y <= 0)
             this.velocity.y = 20
@@ -99,14 +99,27 @@ class Background {
         }
 }
 
-const player = new Player()
-const platforms = [
+let player = new Player()
+let platforms = [
     new Platform({x: 0, y: 480}), 
     new Platform({x: 400, y: 350}),
     new Platform({x: 700, y: 200})]
-const sky = new Background({x: 0, y: 0, image: SkyImg})
-const hills = new Background({x: 0, y: 0, image: hillsImg})
+let sky = new Background({x: 0, y: 0, image: SkyImg})
+let hills = new Background({x: 0, y: 0, image: hillsImg})
 
+let scrollOffset = 0
+
+function init() {
+    player = new Player()
+    platforms = [
+        new Platform({x: 0, y: 480}), 
+        new Platform({x: 400, y: 350}),
+        new Platform({x: 700, y: 200})]
+    sky = new Background({x: 0, y: 0, image: SkyImg})
+    hills = new Background({x: 0, y: 0, image: hillsImg})
+
+    scrollOffset = 0
+}
 
 const keys = {
     right: {
@@ -116,8 +129,6 @@ const keys = {
         pressed: false
     },
 }
-
-let scrollOffset = 0
 
 function animate() {
     requestAnimationFrame(animate)
@@ -185,6 +196,11 @@ function animate() {
         // Win scenario
         if (scrollOffset > 2000) {
             console.log('you win!')
+        }
+
+        // Lose scenario
+        if (player.position.y > canvas.height) {
+            init()
         }
     })
 }
