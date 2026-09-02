@@ -1,10 +1,12 @@
 # Run Home
 A Mario-style side-view runner game. Play as a hero trying to return home after a long adventure. 
+
 As of now, this game can only be played on a device that is connected to a keyboard.
 
-Languages: HTML, CSS, JavaScript
-
 Code is heavily adapted from YouTuber Chris Courses, though all graphics are created by me - please ask for permission if you'd like to use them!
+
+### Languages: 
+HTML, CSS, JavaScript
 
 ### Future plans:
 - Randomize island generation
